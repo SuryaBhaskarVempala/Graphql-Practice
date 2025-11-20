@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "rootDir": "./src",
     "outDir": "./build",
@@ -10,7 +10,9 @@
     "esModuleInterop": true,
 
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "noEmit": false
   },
   "include": ["src"]
 }
