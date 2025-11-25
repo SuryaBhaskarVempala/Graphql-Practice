@@ -4,12 +4,12 @@ export const types = `
         name: String!
         email: String!
         password : String!
-        Posts: [Post!]!
+        posts: [Post!]!
       }
 
       type Post {
         id: ID!
         title: String!
-        User: User!
+        user: User!
       }
 `;

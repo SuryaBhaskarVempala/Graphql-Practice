@@ -22,6 +22,8 @@ const Mutations = {
     addUser: async (_: any, args: { name: string; email: string; password: string }) => {
         const { name, email, password } = args;
 
+        console.log(args);
+
         if (!name) throw new Error("name is required.");
         if (!email) throw new Error("email is required.");
         if (!password) throw new Error("password is required.");
@@ -30,6 +32,7 @@ const Mutations = {
     },
 
     updateUser: async (_: any, args: { id: number; name?: string; email?: string; password?: string }) => {
+        console.log(args);
         const user = await User.findByPk(args.id);
         if (!user) throw new Error("User not found.");
 
@@ -42,20 +45,36 @@ const Mutations = {
     },
 
     deleteUser: async (_: any, args: { id: number }) => {
-        // Use transaction for deleting user and their posts
         return await User.sequelize?.transaction(async (tx) => {
+            // Step 1: Find user
+            const user = await User.findByPk(args.id, { transaction: tx });
+
+            // Step 2: If no user, return null (GraphQL will return null)
+            if (!user) {
+                return null;
+            }
+
+            // Step 3: Delete posts
             await Post.destroy({ where: { userId: args.id }, transaction: tx });
-            const deleted = await User.destroy({ where: { id: args.id }, transaction: tx });
-            return deleted;
+
+            // Step 4: Delete user
+            await User.destroy({ where: { id: args.id }, transaction: tx });
+
+            // Step 5: Return the deleted user's data
+            return user;
         });
     },
 
+
     addPost: async (_: any, args: { userId: number; title: string }) => {
+        console.log(args);
+
         return await Post.create({
             title: args.title,
-            userId: args.userId,
+            userId: Number(args.userId),
         });
-    },
+    }
+
 };
 
 
@@ -63,7 +82,8 @@ const Mutations = {
 
 const UserResolver = {
     posts: async (parent: { id: number }) => {
-        return await Post.findAll({ where: { userId: parent.id } });
+        const user_posts = await Post.findAll({ where: { userId: parent.id } });
+        return user_posts || [];
     },
 };
 
@@ -72,7 +92,8 @@ const UserResolver = {
 
 const PostResolver = {
     user: async (parent: { userId: number }) => {
-        return await User.findByPk(parent.userId);
+        const post_user = await User.findByPk(parent.userId);
+        return post_user || [];
     },
 };
 

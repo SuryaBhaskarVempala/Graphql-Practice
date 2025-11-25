@@ -29,7 +29,7 @@ export async function createApolloServer() {
       User: {
         ...UserIndex.resolvers.User
       },
-      Posts: {
+      Post: {
         ...UserIndex.resolvers.Post
       }
     },
